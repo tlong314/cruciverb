@@ -12,7 +12,7 @@ Basic initialization of a Cruciverb element (which will automatically create, dr
 var crux = new Cruciverb(options);
 ```
 
-where options is an object with the keys described below.
+where `options` is a simple JavaScript object with the keys described below.
 
 ## Options
 
