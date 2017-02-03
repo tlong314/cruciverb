@@ -1,0 +1,157 @@
+/**
+ * @overview CSS styles for Cruciverb crossword puzzle and clues.
+ * @author Tim S. Long
+ * @license MIT License
+ */
+@media screen {
+	#cruciverb_canvas {
+		width: 450px;
+		height: 450px;
+		float: left;
+		border: 1px solid black;
+		background: white;
+	}
+	
+	#keyboardCanvas {
+		display: none;
+	}
+
+	#right_div ul {
+		list-style-type: none;
+		padding: 5px;
+		position: absolute;
+		top: 24px;
+		width: 100%;
+		background: white;
+	}
+	
+	#right_div li {
+		width: 90%;
+		text-wrap: wrap;
+		padding: 2px 14px 2px 2px;
+		margin-right: 14px;
+		cursor: default;
+	}
+
+	#topClue_div {
+		background: white;
+		display: none;
+		width: 100%; /* Fallback */
+		width: calc(100% - 18px);
+	}
+
+	#across_div, #down_div {
+		width: 224px;
+		height: 224px;
+		overflow-x: hidden;
+		overflow-y: auto;
+		border: 1px solid black;
+		position: relative;
+	}
+
+	html body .cruciverbHostElm {
+		position: relative;
+	}
+
+	html body .cruciverbHostElm h2 {
+		width: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: white;
+		color: black;
+		font: 18px Arial;
+		margin: 5px;
+	}
+
+	#shadow_div, #results_div {
+		display: none;
+	}
+	
+	#across_div, #down_div {
+		background-color: white;
+	}
+	
+	#fs_button {
+		margin-left: 20px;
+	}
+}
+
+@media screen and (max-width: 710px) {
+	#across_div {
+		float: left;
+	}
+}
+ 
+@media screen and (max-width: 480px) {
+	#cruciverb_canvas {
+		float: none;
+		position: static;
+		border-left: 0;
+		border-right: 0;
+	}
+
+	#topClue_div {
+		display: block;
+		width: calc(100% - 18px);
+		clear: both;
+		margin: 0 0;
+		position: static;
+		padding: 10px 20px 10px 5px;
+	}
+	
+	#right_div {
+		display: none;
+	}
+}
+
+@media print {
+	#cruciverb_canvas {
+		width: 450px;
+		height: 450px;
+		float: none;
+		border: 1px solid black;
+		background: white;
+	}
+
+	#keyboardCanvas, #fs_button {
+		display: none;
+	}
+
+	#right_div ul {
+		list-style-type: none;
+		padding: 5px;
+		width: 200px;
+		background: white;
+	}
+
+	#right_div li {
+		width: 200px;
+		text-wrap: none;
+		word-wrap: normal;
+		padding: 4px 14px 2px 2px;
+		margin-right: 14px;
+		cursor: default;
+		
+		-webkit-page-break-inside: avoid;
+		page-break-inside: avoid;
+	}
+	
+	.cruciverbHostElm h2 {
+		font: 18px Arial;
+		margin: 5px;
+		position: static;
+	}
+
+	#shadow_div, #results_div {display: none;
+	}
+	
+	.cruciverbHostElm * {
+		background-color: transparent;
+		color: black;
+	}
+
+	#topClue_div, #shadow_div, #results_div {
+		display: none;
+	}
+}

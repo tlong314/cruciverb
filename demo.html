@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>CruciverbJS - Demo</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<!-- Call in stylesheet for CruciverbJS -->
+<link type="text/css" rel="stylesheet" href="cruciverb-style.css" />
+<style>
+* {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	background: #123;
+}
+
+#theme_span {
+	color: #ddd;
+}
+</style>
+</head>
+<body>
+	<div id="testDiv">
+	
+		<!-- Puzzle and clues will be drawn here. -->
+
+	</div>
+	<button id="fs_button">
+		Full Screen
+	</button>
+
+<!-- Call in CruciverbJS -->
+<script type="text/javascript" src="cruciverb.js"></script>
+<script>
+
+var crux = null,
+	fs = false;
+
+onload = function() {
+
+	// answers should be 225 characters long to represent the 15 x 15 puzzle. The best way to visualize it is by breaking the string up into 15 "rows."
+	var answers = "BOAST_RADII_ADD" +
+							"ARDOR_ALIGN_LEE" +
+							"GRADUATIONS_IMP" +
+							"___AAT__NIP_COO" +
+							"CESSNAS_STIPEND" +
+							"EMU_TREP_ERIC__" +
+							"LAM_SIRES_EMOTE" +
+							"EIMS_SUNON_MORN" +
+							"BLEAK_MANOR_PID" +
+							"__RANG_LIME_ETO" +
+							"RUBBERS_CATCREW" +
+							"ERR_SOO__DIO___" +
+							"TEE_SUPERSENIOR" +
+							"RIA_ECOLE_RICKY" +
+							"OCK_THROB_SCORE";
+
+	var clues = {
+		"Across":{
+			"1" : "Brag",
+			"6" : "Distances from centers",
+			"11" : "Sum up",
+			"14" : "Eagerness",
+			"15" : "Choose a side",
+			"16" : "Bruce or Stan",
+			"17" : "Certain rites of passage",
+			"19" : "Mischief maker",
+			"20" : "<i>Star Wars</i> tank, for short",
+			"21" : "Cut in the bud",
+			"22" : "Pigeon call",
+			"23" : "Small planes",
+			"27" : "Teaching assistant's salary",
+			"29" : "Australian non-flyer",
+			"30" : "____-idation (fear)",
+			"32" : "Clapton or Cartman",
+			"33" : "On the ___ (running from the law)",
+			"34" : "Creates a younger horse",
+			"36" : "Overdo it, on stage",
+			"39" : "Spectrometry type (shortened)",
+			"41" : "_____-a-Stick (<i>Team Fortress</i> weapon)",
+			"43" : "Early day, shortly",
+			"44" : "Dark",
+			"46" : "Way",
+			"48" : "Type of mathematical ring (for short)",
+			"49" : "Sounded, as a bell",
+			"51" : "Tequila topper",
+			"52" : '"___ the x" (e<sup><small>x</small></sup>, spoken)',
+			"53" : "Prophylactics",
+			"56" : "Heathcliff's posse, e.g.",
+			"58" : "Mess up",
+			"59" : "___... you were sayyying...",
+			"60" : "Singer Ronnie James",
+			"61" : "Ball holder",
+			"62" : "5th year student",
+			"68" : "River inlet",
+			"69" : "French school",
+			"70" : "Lucy's TV hubbie",
+			"71" : "Doc ___ (Spider-Man villain's nickname)",
+			"72" : "A heart may do it",
+			"73" : "Game result"
+		},
+		"Down":{
+			"1" : "Sack",
+			"2" : "Hockey legend Bobby",
+			"3" : "Dentists org.",
+			"4" : "Club and baking",
+			"5" : "Kids playing hookie",
+			"6" : "Splinter from <i>Teenage Mutant Ninja Turtles</i>",
+			"7" : "Sports legend Muhammad",
+			"8" : "NFL players Lewis and Bailey",
+			"9" : "Light up",
+			"10" : "Be a muse for",
+			"11" : '"School\'s out" singer',
+			"12" : "Devil's minion",
+			"13" : "Pick out peas, say",
+			"18" : "Old video game systems",
+			"23" : "TMZ topic",
+			"24" : "Method of communication",
+			"25" : "What students look forward to",
+			"26" : "Watery fluid",
+			"28" : 'Man behind a popular "cup" drink',
+			"31" : "Type of code",
+			"35" : "Video game hedgehog",
+			"37" : "Unoriginal",
+			"38" : "Provide funding",
+			"40" : "Swedish car company",
+			"42" : "Wanderers",
+			"45" : "Israeli legislature",
+			"47" : "People doing up their laces again",
+			"50" : "Oscar, for one",
+			"53" : "Old school",
+			"54" : "Related to CO(NH<sub><small>2</small></sub>)<sub><small>2</small></sub>", // Note the use of HTML tags
+			"55" : "Deep unnatural sleep",
+			"57" : "Type of math section",
+			"63" : '"Strange Magic" band (for short)',
+			"64" : "Yank. enemy",
+			"65" : "Game by <i>Shadow of the Colussus</i> company",
+			"66" : "im ___ u good?",
+			"67" : "<i>Catcher in the ___</i>"
+		}
+	};
+
+	crux = new Cruciverb({
+		answers: answers,
+		clues: clues,
+		hostElement: document.getElementById("testDiv"),
+		theme: "School\'s Out",
+		referenceLinkName: "Visit tlong314 on Github",
+		referenceLinkHref: "http://www.github.com/tlong314",
+		onComplete: function(){}
+	});
+
+	document.getElementById("fs_button").addEventListener("click", function(){
+		if(!fs) {
+			crux.enterFullScreen(document.body);
+			fs = true;
+		} else {
+			crux.exitFullScreen();
+			fs = false;
+		}
+	}, false);
+};
+</script>
+</body>
+</html>
