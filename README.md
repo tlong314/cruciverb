@@ -9,7 +9,7 @@ Include an external script reference to cruciverb.js (or cruciverb.min.js) in yo
 Basic initialization of a Cruciverb element (which will automatically create, draw, and initialize the puzzle) is done by invoking the Cruciverb constructor:
 
 ```js
-var cruc = new Cruciverb(options);
+var crux = new Cruciverb(options);
 ```
 
 where options is an object with the keys described below.
