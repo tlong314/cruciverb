@@ -16,19 +16,19 @@ where `options` is a simple JavaScript object with the keys described below.
 
 ## Options
 
-answers - Required. A string of length 225 (i.e., 15 x 15) representing the squares of the puzzle from top left to bottom right, one row at a time. Each character should be a letter representing the answer letter in that square or an underscore _ representing a black square.
+answers {string} - Required. A string of length 225 (i.e., 15 x 15) representing the squares of the puzzle from top left to bottom right, one row at a time. Each character should be a letter representing the answer letter in that square or an underscore _ representing a black square.
 
-clues - Required. An object with two keys, "Across" and "Down", each pointint to an object where the keys represent the clue number, and the properties represent the corresponding clues.
+clues {Object} - Required. A primitive JavaScript object with two keys, "Across" and "Down", each pointint to an object where the keys represent the clue number, and the properties represent the corresponding clues.
 
-hostElement - Optional. A page element that the puzzle will be rendered inside of (otherwise will be set to the <body> element).
+hostElement {Object} - Optional. A page element that the puzzle will be rendered inside of (otherwise will be set to the <body> element).
 
-theme - Optional. The puzzle theme (traditionally a motif/running theme that the longer clues follow).
+theme {string} - Optional. The puzzle theme (traditionally a motif/running theme that the longer clues follow).
 
-referenceLinkName - Optional. A description of your site, or a description of some link you would like the user to visit after completing the puzzle.
+referenceLinkName {string} - Optional. A description of your site, or a description of some link you would like the user to visit after completing the puzzle.
 
-referenceLinkHref - Optional. The actual link URL that users will be redirected to if they click the link provided after completing the puzzle.
+referenceLinkHref {string} - Optional. The actual link URL that users will be redirected to if they click the link provided after completing the puzzle.
 
-onComplete - Optional. Any actions you want to occur after the puzzle is completed and after the results screen is created. If you don't want the results screen to show, you can add the line `document.getElementById("results_div").style.display = "none";`
+onComplete {Object} - Optional. A callback function containing any actions you want to occur after the puzzle is completed and after the results screen is created. If you don't want the results screen to show, you can add the line `document.getElementById("results_div").style.display = "none";` inside your onComplete function.
 
 ## License
 
