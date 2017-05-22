@@ -1,6 +1,7 @@
 /**
- * @overview A JavaScript library that to create interactive, size-responsive, touch-capable crossword puzzles on web pages.
- * @author Tim Scott Long
+ * @overview A JavaScript library that quickly creates interactive, size-responsive, touch-capable crossword puzzles on web pages.
+ * @author Tim Scott Long (tim@timlongcreative.com)
+ * @copyright Tim Scott Long 2017
  * @license Available for use under the MIT License
  */
 ;var Cruciverb = (function(){
@@ -26,7 +27,7 @@
 		ctx = null,
 		onCompleteCallback = undefined
 
-		//Store a naming prefix for saving puzzles in localStorage
+		//Stores a naming prefix for saving puzzles in localStorage
 		prefix = window.location.pathname.substr(window.location.pathname.lastIndexOf("/")+1, window.location.pathname.lastIndexOf(".html")-1-window.location.pathname.lastIndexOf("/")) + "-",
 
 	// Quick reference used for key presses
@@ -52,7 +53,7 @@
 		c.moveTo(x1, y1);
 		c.lineTo(x2, y2);
 		c.stroke();
-	} // End drawLine()
+	};
 	
 	/**
 	 * @description The constructor function for the library to build on.
@@ -153,13 +154,14 @@
 
 			initialized = true; // Avoid doubling up on event handlers when page is resized
 		}
-	}; // End Cruciverb constructor
+	};
 
 	window.initializeCruciverb = Cruciverb.prototype.constructor = Cruciverb;
 	window.addEventListener("resize", initializeCruciverb, false);
 
 	/**
-	 * @description Having detected that the device is touch-capable and the user has touched the screen, show canvas keyboard and set touchDetected variable.
+	 * @description Having detected that the device is touch-capable and the user has
+	 *   touched the screen, shows canvas keyboard and sets touchDetected variable.
 	 */
 	var detectTouch = function() {
 		document.body.style.margin = "0";
@@ -170,7 +172,7 @@
 		canvas.setAttribute("height", (cWidth + 6*squareSize)+"px");
 		touchDetected = true;
 		window.removeEventListener("touchstart", detectTouch, false);
-	}; // End detectTouch()
+	};
 
 	/**
 	 * @description Stores the current table cell values in the browsers web storage.
@@ -179,23 +181,25 @@
 		for(var i = 0, len = enteredArray.length; i < len; i++) {
 			localStorage.setItem(prefix + "enteredArray[" + i + "]", enteredArray[i]);
 		}
-	}; // End savePuzzle()
+	};
 	
 	/**
 	 * @description Gets the x and y coordinates (in pixels) in the puzzle table from the nth cell in the table.
 	 * @param {number} n - The number index of the cell.
-	 * @returns {Object} - An object with two keys: x for the returned x-value, y for the returned y-value.
+	 * @returns {Object} - An plain JavaScript object with two keys: x for the returned x-value, y for the
+	 *   returned y-value.
 	 */
 	var getCoordsFromSquare = Cruciverb.prototype.getCoordsFromSquare = function(n) {
 		return {
 			x: squareSize*(n % 15),
 			y: squareSize*(Math.floor(n / 15))
 		};
-	}; // End getCoordsFromSquare()
+	};
 	
 	/**
 	 * @description Gets the number index of the puzzle table cell, at the given x and y value.
-	 * @param {number | Object} x - The x-value of the point, or an object with keys x (for the x-value of the point) and y (for the y-vaue of the point).
+	 * @param {number | Object} x - The x-value of the point, or an object with keys x (for
+	 *   the x-value of the point) and y (for the y-vaue of the point).
 	 * @param {number} y - The y-value of the point.
 	 * @returns {number}
 	 */
@@ -209,7 +213,7 @@
 		y /= squareSize;
 
 		return playerSquarePos = 15 * y + x;
-	}; // End getSquareFromCoords()
+	};
 
 	/**
 	 * @description Draws black cells into the puzzle table.
@@ -222,7 +226,7 @@
 				ctx.fillRect(squareSize*(i%15), squareSize*Math.floor(i/15), squareSize, squareSize);
 			}
 		} 
-	}; // End setBlackSquares()
+	};
 
 	/**
 	 * @description Draws clue numbers in the appropriate cells.
@@ -267,7 +271,7 @@
 				}
 			}
 		}
-	}; // End setClueNumbers()
+	};
 
 	/**
 	 * @description Begins applying DOM updates if DOM has been drawn to the screen; otherwise waits and tries again.
@@ -283,7 +287,7 @@
 			document.getElementById("down" + (id+1) + "_li").addEventListener("click", function(e){direction="vertical"; setPlayerSquarePos(pos); drawHighlight(pos); highlightClue(this.id);}, false);
 		} else
 			setTimeout(function(){checkForAddedElement(id);}, 100); // Nothing found on the current screen. Try again in 100ms.
-	}; // End checkForAddedElement()
+	};
 	
 	/**
 	 * @description Highlight the selected clue (or corresponding clue to the selected table cell).
@@ -299,7 +303,7 @@
 			} else
 				lis[i].style.backgroundColor = "white";
 		}
-	}; // End highlightClue()
+	};
 
 	/**
 	 * @description Imports saved clues from web storage.
@@ -319,7 +323,7 @@
 				}
 			}
 		}
-	}; // End getSavedAnswers()
+	};
 
 	/**
 	 * @description Moves clue list to selected cell's corresponding clue.
@@ -337,7 +341,7 @@
 			var t = document.getElementById("down" + num + "_li").offsetTop;
 			document.getElementById("down_div").scrollTop = t;
 		}
-	}; // End scrollToClue()
+	};
 	
 	/**
 	 * @description Reads a click of the puzzle table or the canvas keyboard, and sets styles and positions accordingly.
@@ -407,7 +411,7 @@
 		renderScreen();
 
 		scrollToClue( squareNumber[ getHighlightStart() ] );
-	}; // End canvasClicked()
+	};
 
 	/**
 	 * @description	Creates an event-like object based on which "canvas key" is pressed, and passes into the keyHit function.
@@ -538,7 +542,7 @@
 		}
 
 		keyHit(keyObj);
-	} // End canvasKeyboardClicked()
+	};
 
 	/**
 	 * @description Determines where the stop and start positions should be for the current highlight "rectangle."
@@ -588,7 +592,7 @@
 		}
 
 		renderScreen();
-	}; // End drawHighlight()
+	};
 
 	/**
 	 * @description Reads values from a key press on the actual keyboard or the canvas keyboard.
@@ -744,14 +748,14 @@
 			showResults();
 			onCompleteCallback.call(self);
 		}
-	}; // End keyHit()
+	};
 
 	/**
 	 * @description Toggles the internal "direction" variable between horizontal and vertical.
 	 */
 	var toggleDirection = Cruciverb.prototype.toggleDirection = function(){
 			direction = (direction == "horizontal") ? "vertical" : "horizontal";
-	}; // End toggleDirection()
+	};
 
 	/**
 	 * @description Uses the screen size to determine optimal puzzle dimensions' width in pixels.
@@ -766,7 +770,7 @@
 			}
 
 			return pWidth;
-	}; // End getPuzzleWidth()
+	};
 
 	/**
 	 * @description Gets the optimal height in pixels for the square puzzle based on current screen size.
@@ -774,7 +778,7 @@
 	 */
 	Cruciverb.prototype.getPuzzleHeight = function(){
 			return getPuzzleWidth();
-	}; // End getPuzzleHeight()
+	};
 
 	/**
 	 * @description Returns the current width (in pixels) of a puzzle square.
@@ -782,7 +786,7 @@
 	 */
 	var getSquareWidth = Cruciverb.prototype.getSquareWidth = function(){
 		return getPuzzleWidth() / 15;
-	}; // End getSquareWidth()
+	};
 
 	/**
 	 * @description Draws the square puzzle in its current state.
@@ -867,7 +871,7 @@
 		ctx.fillText(String.fromCharCode(8592), 7.2*keySize, pw + 11*keySize/3);
 		ctx.fillText(String.fromCharCode(8595), 8.4*keySize, pw + 11*keySize/3);
 		ctx.fillText(String.fromCharCode(8594), 9.3*keySize, pw + 11*keySize/3);
-	}; // End renderScreen()
+	};
 	
 	/**
 	 * @description Determines if all of the cells in the puzzle have been correctly entered.
@@ -881,7 +885,7 @@
 		}
 		
 		return true;
-	}; // End isComplete()
+	};
 	
 	// A few getter and setter methods for internal variables.
 	var getHighlightStart = Cruciverb.prototype.getHighlightStart = function(){
@@ -914,7 +918,7 @@
 	*/
 	var getHighlightLength = Cruciverb.prototype.getHighlightLength = function(){
 		return direction === "horizontal" ? (highlightEnd - highlightStart + 1) : (highlightEnd - highlightStart + 1) / 15;
-	}; // End getHighlightLength()
+	};
 
 	/**
 	 * @description Erases board and resets the web storage values.
@@ -930,7 +934,7 @@
 		}
 		
 		initializeCruciverb();
-	}; // End clearBoard()
+	};
 	
 	/**
 	 * @description Fill the board with the correct answers.
@@ -941,7 +945,7 @@
 			enteredArray[i] = answerArray[i];
 			renderScreen();
 		}
-	}; // End showAllAnswers()
+	};
 	
 	/**
 	 * @description Creates DOM elements that make up the ending screen.
@@ -989,10 +993,10 @@
 		
 		hostElm.appendChild(shadowDiv);
 		hostElm.appendChild(div);
-	}; // End createResults()
+	};
 
 	/**
-	 * @description Show the ending screen.
+	 * @description Shows the ending screen.
 	 */
 	var showResults = Cruciverb.prototype.showResults = function() {
 		resultsShown = true;
@@ -1007,7 +1011,7 @@
 
 		document.getElementById("shadow_div").style.display = "block";
 		results.style.display = "block";
-	}; // End showResults()
+	};
 	
 	/**
 	 * @description Displays page in fullscreen mode.
@@ -1036,7 +1040,7 @@
 		{
 			elm.msRequestFullscreen();
 		}
-	}; // End enterFullScreen()
+	};
 
 	/**
 	 * @description Leaves fullscreen mode.
@@ -1061,7 +1065,7 @@
 		{
 			document.msExitFullscreen();
 		}
-	}; // End exitFullScreen()
+	};
 
 	// Expose the constructor
 	return Cruciverb;
