@@ -87,7 +87,7 @@
 				answerArr = answerArr.split("");
 			}
 
-			for(var i = 0, len=answerArr.length; i < len; i++)
+			for(var i = 0, len=answerArr.length; i < len; i++) {
 				answerArray.push(answerArr[i]);
 
 				//Fill the answer array with elements, rather than starting with all undefineds
@@ -95,6 +95,7 @@
 					enteredArray.push("_");
 				else
 					enteredArray.push("");
+			}
 		}
 
 		if(typeof cluesObject !== "undefined") {
@@ -314,7 +315,7 @@
 				if(localStorage.getItem(prefix + "enteredArray[" + i + "]")) {
 					enteredArray[i] = localStorage.getItem(prefix + "enteredArray[" + i + "]");
 				} else {
-					if(enteredArray[i] != "_")
+					if(enteredArray[i] !== "_")
 						enteredArray[i] = "";
 				}
 
@@ -743,7 +744,7 @@
 		renderScreen();
 		drawHighlight(playerSquarePos);
 		scrollToClue( squareNumber[ getHighlightStart() ] );
-		
+
 		if(isComplete() && !resultsShown) {
 			showResults();
 			onCompleteCallback.call(self);
@@ -933,7 +934,7 @@
 			}
 		}
 		
-		initializeCruciverb();
+		initializeCruciverb({});
 	};
 	
 	/**
