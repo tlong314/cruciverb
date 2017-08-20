@@ -49,19 +49,19 @@
 		position: relative;
 	}
 
-	html body .cruciverbHostElm {
+	html .cruciverbHostElm {
 		position: relative;
 	}
 
-	html body .cruciverbHostElm h2 {
+	html .cruciverbHostElm h2 {
 		width: 100%;
 		position: absolute;
 		top: 0;
 		left: 0;
 		background-color: white;
 		color: black;
-		font: 18px Arial;
-		margin: 5px;
+		font: bold 18px Arial;
+		margin: 10px !important;
 	}
 
 	#shadow_div, #results_div {
