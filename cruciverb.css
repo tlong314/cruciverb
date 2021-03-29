@@ -31,6 +31,7 @@
 		padding: 2px 14px 2px 2px;
 		margin-right: 14px;
 		cursor: default;
+		font: 15px/22.5px Arial, sans-serif;
 	}
 
 	#topClue_div {
@@ -60,7 +61,7 @@
 		left: 0;
 		background-color: white;
 		color: black;
-		font: bold 18px Arial;
+		font: bold 18px Arial, sans-serif;
 		margin: 10px !important;
 	}
 
@@ -138,7 +139,7 @@
 	}
 	
 	.cruciverbHostElm h2 {
-		font: 18px Arial;
+		font: 18px Arial, sans-serif;
 		margin: 5px;
 		position: static;
 	}
