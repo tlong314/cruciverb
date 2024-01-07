@@ -197,9 +197,10 @@
 		
 		// Add the custom onscreen keyboard.
 		if(touchDetected) {
-			canvas.style.height = (cssWidth + 6*squareSize) + "px";
+			canvas.style.width = cssWidth + "px";
+			canvas.style.height = (cssWidth + 4 * getKeySize()) + "px";
 			canvas.setAttribute("width", cssWidth+"px");
-			canvas.setAttribute("height", (cssWidth + 6*squareSize)+"px");
+			canvas.setAttribute("height", (cssWidth + 4 * getKeySize())+"px");
 		}
 
 		getSavedAnswers();
@@ -246,9 +247,9 @@
 		// document.body.style.margin = "0";
 		// canvas.style.border = "0";
 		canvas.style.width = cssWidth + "px";
-		canvas.style.height = (cWidth + 4 * getKeySize()) + "px";
+		canvas.style.height = (cssWidth + 4 * getKeySize()) + "px";
 		canvas.setAttribute("width", cssWidth+"px");
-		canvas.setAttribute("height", (cWidth + 4 * getKeySize())+"px");
+		canvas.setAttribute("height", (cssWidth + 4 * getKeySize())+"px");
 		touchDetected = true;
 		window.removeEventListener("touchstart", detectTouch, false);
 		initializeCruciverb();
