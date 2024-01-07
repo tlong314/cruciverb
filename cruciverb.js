@@ -9,17 +9,20 @@
  * @copyright Tim Scott Long 2017-2021
  * @license Available for use under the MIT License
  */
-;var Cruciverb = (function(){
+;let Cruciverb = (function() {
+	let pWidthInSquares = 15;
 
-	var KEY_HIGHLIGHT_MAX = 10;
+	let KEY_HIGHLIGHT_MAX = 10;
+	let onrender = function(ctx) {};
 
-	var self = null,
+	let self = null,
 		storedParameters = null,
 		touchDetected = false,
 		linkHref = "",
 		linkName = "",
 		playerSquarePos = 0,
-		cWidth = 450, // Default puzzle width (in pixels)
+		cWidth = pWidthInSquares * 30, // Default puzzle width (in pixels)
+		cssWidth = 450,
 		squareSize = 30,
 		direction = "horizontal", // Otherwise "vertical"
 		hostElm = document.body, // Host in entire page body by default
@@ -50,7 +53,7 @@
 
 	keyHighlightTime = {};
 
-	for(var i = 0; i < azArray.length; i++) {
+	for(let i = 0; i < azArray.length; i++) {
 		keyHighlightTime[ azArray[i] ] = 0;
 	}
 
@@ -72,7 +75,7 @@
 	 * @param {number} y2 - y-value of second point.
 	 * @param {object} c - canvas context object.
 	 */
-	var drawLine = function(x1, y1, x2, y2, c) {
+	let drawLine = function(x1, y1, x2, y2, c) {
 		c.beginPath();
 		c.moveTo(x1, y1);
 		c.lineTo(x2, y2);
@@ -88,7 +91,7 @@
 	 * @param {number} height - the original height
 	 * @param {object} c - canvas context object
 	 */
-	var fillActiveRect = function(x, y, width, height, c) {
+	let fillActiveRect = function(x, y, width, height, c) {
 		c.save();
 		c.shadowColor = "rgba(0, 0, 0, 0.35)";
 		c.shadowOffsetX = 1;
@@ -107,10 +110,12 @@
 	 * @param {object} options - An object of parameters passed in when creating a Cruciverb instance.
 	 * @returns {object} - The current Cruciverb object.
 	 */
-	var Cruciverb = function(options) {
-		storedParameters = options;
+	let Cruciverb = function(options={}) {
 
-		var answerArr = options.answers,
+		if(!initialized)
+			storedParameters = options;
+
+		let answerArr = options.answers,
 			cluesObject = options.clues,
 			keyHighlights = options.keyHighlights || true; // show key zooming by default
 
@@ -118,15 +123,22 @@
 
 		linkHref = linkHref || options.referenceLinkHref || "";
 		linkName = linkName || options.referenceLinkName; // These values won't exist when initialize is called on page resize.
-		hostElm = options.hostElement || hostElm;
-		hostElm.classList.add("cruciverbHostElm");
-		onCompleteCallback = options.onComplete || function(){};
 		
 		if(!initialized) {
-			hostElm.innerHTML = '<div id="topClue_div"></div><canvas id="cruciverb_canvas" width="450" height="450" ></canvas>' +
+			hostElm = options.hostElement || hostElm;
+			hostElm.classList.add("cruciverbHostElm");
+
+			hostElm.innerHTML = `<div id="topClue_div"></div><canvas id="cruciverb_canvas" width="${cssWidth}" height="${cssWidth}" ></canvas>` +
 				'<div id="right_div"><div id="across_div"><h2>Across</h2><ul id="across_ul">' +
 				'</ul></div><div id="down_div"><h2>Down</h2><ul id="down_ul"></ul></div></div>' +
 				'<br/><span id="theme_span"></span>';
+			
+			onrender = options.onrender || function(ctx) {};
+
+			// This assumes a square grid
+			pWidthInSquares = Math.floor(Math.sqrt(options.answers.length));
+
+			onCompleteCallback = options.oncomplete || options.onComplete || function(){};
 		}
 
 		// These values will be undefined when we re-initialize as page is resized.
@@ -135,7 +147,7 @@
 				answerArr = answerArr.split("");
 			}
 
-			for(var i = 0, len=answerArr.length; i < len; i++) {
+			for(let i = 0, len=answerArr.length; i < len; i++) {
 				answerArray.push(answerArr[i]);
 
 				//Fill the answer array with elements, rather than starting with all undefineds
@@ -147,11 +159,11 @@
 		}
 
 		if(typeof cluesObject !== "undefined") {
-			for(var x in cluesObject.Across) {
+			for(let x in cluesObject.Across) {
 				cluesObj.Across[x] = cluesObject.Across[x];
 			}
 			
-			for(var x in cluesObject.Down) {
+			for(let x in cluesObject.Down) {
 				cluesObj.Down[x] = cluesObject.Down[x];
 			}
 		}
@@ -172,22 +184,22 @@
 		if(document.documentElement.clientWidth <= 400) {
 			document.body.style.margin = "0";
 			canvas.style.border = "0";
-			canvas.style.width = cWidth + "px";
-			canvas.style.height = cWidth + "px";
-			canvas.setAttribute("width", cWidth+"px");
-			canvas.setAttribute("height", cWidth+"px");			
+			canvas.style.width = cssWidth + "px";
+			canvas.style.height = cssWidth + "px";
+			canvas.setAttribute("width", cssWidth+"px");
+			canvas.setAttribute("height", cssWidth+"px");			
 		} else {
-			canvas.style.width = cWidth + "px";
-			canvas.style.height = cWidth + "px";
-			canvas.setAttribute("width", cWidth+"px");
-			canvas.setAttribute("height", cWidth+"px");
+			canvas.style.width = cssWidth + "px";
+			canvas.style.height = cssWidth + "px";
+			canvas.setAttribute("width", cssWidth+"px");
+			canvas.setAttribute("height", cssWidth+"px");
 		}
 		
 		// Add the custom onscreen keyboard.
 		if(touchDetected) {
-			canvas.style.height = (cWidth + 6*squareSize) + "px";
-			canvas.setAttribute("width", cWidth+"px");
-			canvas.setAttribute("height", (cWidth + 6*squareSize)+"px");
+			canvas.style.height = (cssWidth + 6*squareSize) + "px";
+			canvas.setAttribute("width", cssWidth+"px");
+			canvas.setAttribute("height", (cssWidth + 6*squareSize)+"px");
 		}
 
 		getSavedAnswers();
@@ -212,8 +224,8 @@
 	};
 
 	/** Manage single frame of key scaling animation */
-	var keyUpdate = function() {
-		for(var key in keyHighlightTime) {
+	let keyUpdate = function() {
+		for(let key in keyHighlightTime) {
 			if(keyHighlightTime[key] > 0) {
 				keyHighlightTime[key]--;
 			}
@@ -230,23 +242,24 @@
 	 * @description Having detected that the device is touch-capable and the user has
 	 *   touched the screen, shows canvas keyboard and sets touchDetected variable.
 	 */
-	var detectTouch = function() {
-		document.body.style.margin = "0";
-		canvas.style.border = "0";
-		canvas.style.width = cWidth + "px";
-		canvas.style.height = (cWidth + 6*squareSize) + "px";
-		canvas.setAttribute("width", cWidth+"px");
-		canvas.setAttribute("height", (cWidth + 6*squareSize)+"px");
+	let detectTouch = function() {
+		// document.body.style.margin = "0";
+		// canvas.style.border = "0";
+		canvas.style.width = cssWidth + "px";
+		canvas.style.height = (cWidth + 4 * getKeySize()) + "px";
+		canvas.setAttribute("width", cssWidth+"px");
+		canvas.setAttribute("height", (cWidth + 4 * getKeySize())+"px");
 		touchDetected = true;
 		window.removeEventListener("touchstart", detectTouch, false);
+		initializeCruciverb();
 		renderScreen();
 	};
 
 	/**
 	 * @description Stores the current table cell values in the browsers web storage.
 	 */
-	var savePuzzle = Cruciverb.prototype.savePuzzle = function() {
-		for(var i = 0, len = enteredArray.length; i < len; i++) {
+	let savePuzzle = Cruciverb.prototype.savePuzzle = function() {
+		for(let i = 0, len = enteredArray.length; i < len; i++) {
 			localStorage.setItem(prefix + "enteredArray[" + i + "]", enteredArray[i]);
 		}
 	};
@@ -257,10 +270,10 @@
 	 * @returns {Object} - An plain JavaScript object with two keys: x for the returned x-value, y for the
 	 *   returned y-value.
 	 */
-	var getCoordsFromSquare = Cruciverb.prototype.getCoordsFromSquare = function(n) {
+	let getCoordsFromSquare = Cruciverb.prototype.getCoordsFromSquare = function(n) {
 		return {
-			x: squareSize*(n % 15),
-			y: squareSize*(Math.floor(n / 15))
+			x: squareSize*(n % pWidthInSquares),
+			y: squareSize*(Math.floor(n / pWidthInSquares))
 		};
 	};
 	
@@ -271,7 +284,7 @@
 	 * @param {number} y - The y-value of the point.
 	 * @returns {number}
 	 */
-	var getSquareFromCoords = Cruciverb.prototype.getSquareFromCoords = function(x, y) {
+	let getSquareFromCoords = Cruciverb.prototype.getSquareFromCoords = function(x, y) {
 		if(typeof x === "object") {
 				y = x.y;
 				x = x.x;
@@ -280,18 +293,18 @@
 		x /= squareSize;
 		y /= squareSize;
 
-		return playerSquarePos = 15 * y + x;
+		return playerSquarePos = pWidthInSquares * y + x;
 	};
 
 	/**
 	 * @description Draws black cells into the puzzle table.
 	 */
-	var setBlackSquares = function() {
+	let setBlackSquares = function() {
 		ctx.fillStyle = "black";
 
-		for(var i = 0; i < 225; i++) { //*** This should be generalized for larger puzzles
+		for(let i = 0; i < Math.pow(pWidthInSquares, 2); i++) { //*** This should be generalized for larger puzzles
 			if(answerArray[i] == "_") {
-				ctx.fillRect(squareSize*(i%15), squareSize*Math.floor(i/15), squareSize, squareSize);
+				ctx.fillRect(squareSize*(i%pWidthInSquares), squareSize*Math.floor(i/pWidthInSquares), squareSize, squareSize);
 			}
 		}
 	};
@@ -299,16 +312,16 @@
 	/**
 	 * @description Draws clue numbers in the appropriate cells.
 	 */
-	var setClueNumbers = function() {
+	let setClueNumbers = function() {
 		ctx.fillStyle = "black";
 		ctx.font = Math.max(Math.floor(squareSize/3), 5) + "px Arial, sans-serif";
 		ctx.textBaseline = "alphabetic";
 
-		var idx = 0;
+		let idx = 0;
 
-		for(var i = 0; i < 225; i++) {
+		for(let i = 0; i < Math.pow(pWidthInSquares, 2); i++) {
 			if(answerArray[i] != "_") {
-				if(i%15 == 0 || i < 15 || (i >= 1 && answerArray[i-1] == "_") || (i >= 15 && answerArray[i-15] == "_")) {
+				if(i%pWidthInSquares == 0 || i < pWidthInSquares || (i >= 1 && answerArray[i-1] == "_") || (i >= pWidthInSquares && answerArray[i-pWidthInSquares] == "_")) {
 
 					ctx.fillText((idx+1),
 						getCoordsFromSquare(i).x + squareSize/10,
@@ -319,18 +332,18 @@
 					
 					//Determine if Across or Down or both, and create a clue div accordingly
 					if(!puzzleStarted) {
-						if(i%15 == 0 || (i >= 1 && answerArray[i-1] == "_")) { // Across
-							var newLi = document.createElement("LI")							
+						if(i%pWidthInSquares == 0 || (i >= 1 && answerArray[i-1] == "_")) { // Across
+							let newLi = document.createElement("LI")							
 							newLi.id = "across" + (idx+1) + "_li";
 							document.getElementById("across_ul").appendChild(newLi);
 
 							checkForAddedElement(i, idx, "a");
 						}
 						
-						if(i < 15 || (i >= 15 && answerArray[i-15] == "_"))//Down
+						if(i < pWidthInSquares || (i >= pWidthInSquares && answerArray[i-pWidthInSquares] == "_"))//Down
 						{
-							var newLi = document.createElement("LI");
-							//var tN = document.createTextNode((idx+1) + ". " + cluesObj.Down[idx+1]);
+							let newLi = document.createElement("LI");
+							//let tN = document.createTextNode((idx+1) + ". " + cluesObj.Down[idx+1]);
 							//newLi.appendChild(tN);
 							
 							newLi.id = "down" + (idx+1) + "_li";
@@ -349,7 +362,7 @@
 	/**
 	 * @description Begins applying DOM updates if DOM has been drawn to the screen; otherwise waits and tries again.
 	 */
-	var checkForAddedElement = function(pos, id, aOrD) {
+	let checkForAddedElement = function(pos, id, aOrD) {
 		if(document.getElementById("across" + (id+1) + "_li") != null && aOrD == "a") {
 			document.getElementById("across" + (id+1) + "_li").innerHTML = (id+1) + ". " + cluesObj.Across[id+1];
 			
@@ -366,10 +379,10 @@
 	 * @description Highlight the selected clue (or corresponding clue to the selected table cell).
 	 * @param {string} id - The id attribute of the clue list item.
 	 */
-	var highlightClue = function(id) {
-		var lis = document.querySelectorAll("#right_div li");
+	let highlightClue = function(id) {
+		let lis = document.querySelectorAll("#right_div li");
 
-		for(var i = 0, len=lis.length; i < len; i++) {
+		for(let i = 0, len=lis.length; i < len; i++) {
 			if(lis[i].id == id) {
 				lis[i].style.backgroundColor = "rgb(230, 245, 255)";
 				document.getElementById("topClue_div").innerHTML = lis[i].innerHTML;
@@ -381,7 +394,7 @@
 	/**
 	 * @description Imports saved clues from web storage.
 	 */
-	var getSavedAnswers = Cruciverb.prototype.getSavedAnswers = function() {
+	let getSavedAnswers = Cruciverb.prototype.getSavedAnswers = function() {
 		if(window.localStorage) {
 			for(i = 0, len = answerArray.length; i < len; i++) {
 				if(localStorage.getItem(prefix + "enteredArray[" + i + "]")) {
@@ -402,16 +415,16 @@
 	 * @description Moves clue list to selected cell's corresponding clue.
 	 * @param {number} num - The clue number.
 	 */
-	var scrollToClue = function(num) {
+	let scrollToClue = function(num) {
 		if(direction == "horizontal") {
 			highlightClue("across" + num + "_li");
 			
-			var t = document.getElementById("across" + num + "_li").offsetTop;
+			let t = document.getElementById("across" + num + "_li").offsetTop;
 			document.getElementById("across_div").scrollTop = t;
 		} else {
 			highlightClue("down" + num + "_li");
 			
-			var t = document.getElementById("down" + num + "_li").offsetTop;
+			let t = document.getElementById("down" + num + "_li").offsetTop;
 			document.getElementById("down_div").scrollTop = t;
 		}
 	};
@@ -420,8 +433,8 @@
 	 * @description Reads a click of the puzzle table or the canvas keyboard, and sets styles and positions accordingly.
 	 * @param {Object} e - The click event object.
 	 */
-	var canvasClicked = function(e) {
-		var oldPlayerSquarePos = playerSquarePos,
+	let canvasClicked = function(e) {
+		let oldPlayerSquarePos = playerSquarePos,
 				rect = canvas.getBoundingClientRect();
 
 		fingerX = e.clientX - rect.left;
@@ -435,8 +448,8 @@
 		fingerX = Math.floor(fingerX/squareSize);
 		fingerY = Math.floor(fingerY/squareSize);
 
-		if(answerArray[15*fingerY + fingerX] != "_") {
-			playerSquarePos = 15*fingerY + fingerX;
+		if(answerArray[pWidthInSquares*fingerY + fingerX] != "_") {
+			playerSquarePos = pWidthInSquares*fingerY + fingerX;
 		} else {
 			return;
 		}
@@ -445,10 +458,10 @@
 			toggleDirection();
 		}
 
-		var idx = playerSquarePos;
+		let idx = playerSquarePos;
 		if(direction == "horizontal") {
 			//Search left from current position until we hit a black square or the end of the puzzle
-			while(answerArray[idx] !== "_" && idx%15 !== 0) {
+			while(answerArray[idx] !== "_" && idx%pWidthInSquares !== 0) {
 				idx--;
 			}
 			
@@ -460,22 +473,22 @@
 			idx = playerSquarePos;
 			
 			//Search left from current position until we hit a black square or the end of the puzzle
-			while(answerArray[idx] !== "_" && idx % 15 !== 14) {
+			while(answerArray[idx] !== "_" && idx % pWidthInSquares !== (pWidthInSquares - 1)) {
 				idx++;
 			}
 
 			setHighlightEnd(idx);
 		} else {
 			while(answerArray[idx] !== "_" && idx >= 0) {
-				idx-=15;
+				idx-=pWidthInSquares;
 			}
 			
-			idx+=15;
+			idx+=pWidthInSquares;
 			setHighlightStart(idx);
 			
 			idx = playerSquarePos;
-			while(answerArray[idx] !== "_" && idx <= 224) {
-				idx+=15;
+			while(answerArray[idx] !== "_" && idx <= Math.pow(pWidthInSquares, 2) - 1) {
+				idx+=pWidthInSquares;
 			}
 
 			setHighlightEnd(idx);
@@ -491,15 +504,17 @@
 	 * @param {number} x - The x-value (in pixels) on the canvas keyboard where the original touch event was detected. 
 	 * @param {number} y - The y-value (in pixels) on the canvas keyboard where the original touch event was detected. 
 	 */
-	var canvasKeyboardClicked = function(x, y) {
+	let canvasKeyboardClicked = function(x, y) {
 		// The event-like object, which only contains the properties considered in keyHit()
-		var keyObj = {
+		let keyObj = {
 			preventDefault: function(){},
 			which: 0,
 			shiftKey: false
 		};
 
-		var keySize = 3*squareSize/2, pw = getPuzzleWidth();
+		let keySize = getKeySize(),
+			pw = getPuzzleWidth();
+		
 		ctx.font = Math.floor(keySize/2) + "px Arial, sans-serif";
 		
 		if(y <= keySize) { // First row
@@ -525,21 +540,21 @@
 				keyObj.which = 80;
 			}
 		} else if(y <= 2*keySize) { // Second row
-			if(x < keySize + squareSize/2) { // A
+			if(x < keySize + keySize/2) { // A
 				keyObj.which = 65;
-			} else if(x < 2*keySize + squareSize/2) { // S
+			} else if(x < 2*keySize + keySize/2) { // S
 				keyObj.which =	83;
-			} else if(x < 3*keySize + squareSize/2) { // D
+			} else if(x < 3*keySize + keySize/2) { // D
 				keyObj.which = 68;
-			} else if(x < 4*keySize + squareSize/2) { // F
+			} else if(x < 4*keySize + keySize/2) { // F
 				keyObj.which = 70;
-			} else if(x < 5*keySize + squareSize/2) { //G
+			} else if(x < 5*keySize + keySize/2) { //G
 				keyObj.which = 71;
-			} else if(x < 6*keySize + squareSize/2) { // H
+			} else if(x < 6*keySize + keySize/2) { // H
 				keyObj.which = 72;
-			} else if(x < 7*keySize + squareSize/2) { // J
+			} else if(x < 7*keySize + keySize/2) { // J
 				keyObj.which = 74;
-			} else if(x < 8*keySize + squareSize/2) { // K
+			} else if(x < 8*keySize + keySize/2) { // K
 				keyObj.which = 75;
 			} else { // L
 				keyObj.which = 76;
@@ -584,27 +599,27 @@
 		}
 		else//Fourth row
 		{
-			if(x < 2.5*squareSize)//BKSP
+			if(x < 2.5*(2 * keySize / 3))//BKSP
 			{
 				keyObj.which = 8;
 			}
 			else
-			if(x < 5.5*squareSize)//DEL
+			if(x < 5.5*(2 * keySize / 3))//DEL
 			{
 				keyObj.which = 46;
 			}
 			else
-			if(x < 10.5*squareSize)//SPACE
+			if(x < 10.5*(2 * keySize / 3))//SPACE
 			{
 				keyObj.which = 32;
 			}
 			else
-			if(x < 10.5*squareSize + keySize)//LEFT
+			if(x < 10.5*(2 * keySize / 3) + keySize)//LEFT
 			{
 				keyObj.which = 37;
 			}
 			else
-			if(x < 10.5*squareSize + 2*keySize)//DOWN
+			if(x < 10.5*(2 * keySize / 3) + 2*keySize)//DOWN
 			{
 				keyObj.which = 40;
 			}
@@ -621,11 +636,11 @@
 	 * @description Determines where the stop and start positions should be for the current highlight "rectangle."
 	 * @param {number} idx - The puzzle table cell number index where the highlight is based.
 	 */
-	var drawHighlight = function(idx) {
+	let drawHighlight = function(idx) {
 		if(direction == "horizontal")
 		{
 			//Search left from current position until we hit a black square or the end of the puzzle
-			while(answerArray[idx] != "_" && idx%15 != 0)
+			while(answerArray[idx] != "_" && idx%pWidthInSquares != 0)
 			{
 				idx--;
 			}
@@ -638,7 +653,7 @@
 			idx = playerSquarePos;
 			
 			//Search left from current position until we hit a black square or the end of the puzzle
-			while(answerArray[idx] != "_" && idx%15 != 14)
+			while(answerArray[idx] != "_" && idx%pWidthInSquares != pWidthInSquares-1)
 			{
 				idx++;
 			}
@@ -649,16 +664,16 @@
 		{
 			while(answerArray[idx] != "_" && idx >= 0)
 			{
-				idx-=15;
+				idx-=pWidthInSquares;
 			}
 			
-			idx+=15;
+			idx+=pWidthInSquares;
 			setHighlightStart(idx);
 			
 			idx = playerSquarePos;
-			while(answerArray[idx] != "_" && idx <= 224)
+			while(answerArray[idx] != "_" && idx <= Math.pow(pWidthInSquares, 2) - 1)
 			{
-				idx+=15;
+				idx+=pWidthInSquares;
 			}
 
 			setHighlightEnd(idx);			
@@ -671,7 +686,7 @@
 	 * @description Reads values from a key press on the actual keyboard or the canvas keyboard.
 	 * @param {Object} e - The event from the key press, or a "mock" event object based on a touch of the canvas keyboard.
 	 */
-	var keyHit = Cruciverb.prototype.keyHit = function(e) {
+	let keyHit = Cruciverb.prototype.keyHit = function(e) {
 		e.preventDefault();
 
 		switch(e.which) {
@@ -709,11 +724,11 @@
 
 					do
 					{
-						if(playerSquarePos < 15) {
+						if(playerSquarePos < pWidthInSquares) {
 							playerSquarePos += answerArray.length;
 						}
 
-						playerSquarePos-= 15;
+						playerSquarePos -= pWidthInSquares;
 					}
 					while(playerSquarePos < 0 || answerArray[playerSquarePos] === "_");
 				}
@@ -724,11 +739,11 @@
 
 					do
 					{
-						if(playerSquarePos > 209) { // Generalized: answerArray.length - 1 - Math.sqrt(answerArray.length)
-							playerSquarePos -= 225;
+						if(playerSquarePos > answerArray.length - 1 - Math.floor(Math.sqrt(answerArray.length))) { // 209 for 225; Generalized: answerArray.length - 1 - Math.sqrt(answerArray.length)
+							playerSquarePos -= Math.pow(pWidthInSquares, 2);
 						}
 
-						playerSquarePos+= 15;
+						playerSquarePos+= pWidthInSquares;
 					}
 					while(playerSquarePos > answerArray.length || answerArray[playerSquarePos] === "_");
 				}
@@ -754,11 +769,11 @@
 					}
 					else
 					{
-						if(enteredArray[playerSquarePos] === "" && playerSquarePos >= 15) {
+						if(enteredArray[playerSquarePos] === "" && playerSquarePos >= pWidthInSquares) {
 							do {
-								playerSquarePos -= 15;
+								playerSquarePos -= pWidthInSquares;
 							}
-							while(answerArray[playerSquarePos] === "_" && playerSquarePos >= 15)
+							while(answerArray[playerSquarePos] === "_" && playerSquarePos >= pWidthInSquares)
 						}
 					}
 
@@ -786,7 +801,7 @@
 						do {
 							playerSquarePos--;
 						}
-						while((playerSquarePos%15 !== 0 || answerArray[playerSquarePos] === "_") && (answerArray[playerSquarePos-1] !== "_" || answerArray[playerSquarePos] === "_"));
+						while((playerSquarePos%pWidthInSquares !== 0 || answerArray[playerSquarePos] === "_") && (answerArray[playerSquarePos-1] !== "_" || answerArray[playerSquarePos] === "_"));
 					}
 					else
 					{
@@ -799,7 +814,7 @@
 							playerSquarePos++;
 							playerSquarePos %= answerArray.length;
 						}
-						while((playerSquarePos % 15 !== 0 || answerArray[playerSquarePos] === "_") && (answerArray[playerSquarePos - 1] !== "_" || answerArray[playerSquarePos] === "_"));
+						while((playerSquarePos % pWidthInSquares !== 0 || answerArray[playerSquarePos] === "_") && (answerArray[playerSquarePos - 1] !== "_" || answerArray[playerSquarePos] === "_"));
 					}
 				}
 				break;
@@ -823,11 +838,11 @@
 						else {
 							do
 							{
-								if(playerSquarePos > 209) {
-									playerSquarePos -= 225;
+								if(playerSquarePos > (answerArray.length - 1 - Math.sqrt(answerArray.length))) { // 209 for 225; Generalized: answerArray.length - 1 - Math.sqrt(answerArray.length)
+									playerSquarePos -= Math.pow(pWidthInSquares, 2);
 								}
 
-								playerSquarePos+= 15;
+								playerSquarePos+= pWidthInSquares;
 							}
 							while(answerArray[playerSquarePos] === "_");
 						}
@@ -849,7 +864,7 @@
 	/**
 	 * @description Toggles the internal "direction" variable between horizontal and vertical.
 	 */
-	var toggleDirection = Cruciverb.prototype.toggleDirection = function(){
+	let toggleDirection = Cruciverb.prototype.toggleDirection = function(){
 			direction = (direction == "horizontal") ? "vertical" : "horizontal";
 	};
 
@@ -857,11 +872,11 @@
 	 * @description Uses the screen size to determine optimal puzzle dimensions' width in pixels.
 	 * @returns {number} - The optimal width for the square puzzle.
 	 */
-	var getPuzzleWidth = Cruciverb.prototype.getPuzzleWidth = function(){
-			var pWidth = Math.min(document.documentElement.clientWidth, 450);
+	let getPuzzleWidth = Cruciverb.prototype.getPuzzleWidth = function(){
+			let pWidth = Math.min(document.documentElement.clientWidth, cssWidth);
 
-			// We want our puzzle dimensions to be divisble by the number of squares in a row (15).
-			while(pWidth%15 !== 0) {
+			// We want our puzzle dimensions to be divisble by the number of squares in a row (pWidthInSquares).
+			while(pWidth%pWidthInSquares !== 0) {
 				pWidth--;
 			}
 
@@ -880,30 +895,38 @@
 	 * @description Returns the current width (in pixels) of a puzzle square.
 	 * @returns {number}
 	 */
-	var getSquareWidth = Cruciverb.prototype.getSquareWidth = function(){
-		return getPuzzleWidth() / 15;
+	let getSquareWidth = Cruciverb.prototype.getSquareWidth = function(){
+		return getPuzzleWidth() / pWidthInSquares;
+	};
+
+	/**
+	 * Gets the appropriate key width for a screen keyboard in the current screen
+	 * @returns {number}
+	 */
+	let getKeySize = function() {
+		return Math.min(45, 3*squareSize/2);
 	};
 
 	/**
 	 * @description Draws the square puzzle in its current state.
 	 */
-	var renderScreen = function(){
+	let renderScreen = function() {
 		ctx.clearRect(0, 0, cWidth, cWidth);
 		ctx.fillStyle = "#FFFFAA";
 		ctx.fillStyle = "rgb(255, 255, 230)";
 
 		if(direction == "horizontal"){
-			ctx.fillRect(squareSize*(getHighlightStart()%15), squareSize*Math.floor(getHighlightStart()/15), getHighlightLength()*squareSize, squareSize);
+			ctx.fillRect(squareSize*(getHighlightStart()%pWidthInSquares), squareSize*Math.floor(getHighlightStart()/pWidthInSquares), getHighlightLength()*squareSize, squareSize);
 		}
 		else {
-			ctx.fillRect(squareSize*(getHighlightStart()%15), squareSize*Math.floor(getHighlightStart()/15), squareSize, getHighlightLength()*squareSize);
+			ctx.fillRect(squareSize*(getHighlightStart()%pWidthInSquares), squareSize*Math.floor(getHighlightStart()/pWidthInSquares), squareSize, getHighlightLength()*squareSize);
 		}
 
 		ctx.strokeStyle = "black";
-		var pW = getPuzzleWidth(),
+		let pW = getPuzzleWidth(),
 			sW = getSquareWidth();
 
-		for(var i = 0; i <= pW; i += sW) {
+		for(let i = 0; i <= pW; i += sW) {
 			drawLine(i, 0, i, pW, ctx);
 			drawLine(0, i, pW, i, ctx);
 		}
@@ -913,12 +936,15 @@
 
 		// stroke a square over the current active square
 		ctx.strokeStyle = "rgb(0, 0, 200)";
-		ctx.strokeRect(squareSize*(playerSquarePos%15), squareSize*Math.floor(playerSquarePos/15), squareSize, squareSize);
+		ctx.strokeRect(squareSize*(playerSquarePos%pWidthInSquares),
+			squareSize*Math.floor(playerSquarePos/pWidthInSquares),
+			squareSize,
+			squareSize);
 
 		ctx.font = Math.floor(squareSize / 2) + "px Arial, sans-serif";
 		ctx.textBaseline = "middle";
 
-		for(var i = 0; i < answerArray.length; i++) {
+		for(let i = 0; i < answerArray.length; i++) {
 			if(enteredArray[i] != "_") {
 			 ctx.fillText(enteredArray[i] || "",
 				getCoordsFromSquare(i).x + squareSize / 2
@@ -928,10 +954,10 @@
 		}
 
 		// Keyboard		
-		var keyLetters = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
+		let keyLetters = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
 			"A", "S", "D", "F", "G", "H", "J", "K", "L",
 			"Z", "X", "C", "V", "B", "N", "M"],
-			keySize = 3*squareSize/2,
+			keySize = getKeySize(),
 			pw = getPuzzleWidth();
 
 		ctx.font = Math.floor(.5 * keySize) + "px Arial, sans-serif";
@@ -942,7 +968,7 @@
 		ctx.strokeStyle = "rgb(230, 245, 255)";
 
 		// Letters on top row of keyboard
-		for(var i = 0; i <10 ; i++) {
+		for(let i = 0; i <10 ; i++) {
 			ctx.strokeRect(i * keySize, pw, keySize, keySize);
 
 			if(keyHighlightTime[ keyLetters[i] ] > 0) {
@@ -970,7 +996,7 @@
 		ctx.strokeStyle = "rgb(230, 245, 255)";
 		ctx.font = Math.floor(.5 * squareSize) + "px Arial, sans-serif";
 
-		for(var i = 0; i < 9; i++) {
+		for(let i = 0; i < 9; i++) {
 			ctx.strokeRect(squareSize / 2 + i * keySize, pw + keySize, keySize, keySize);
 
 			if(keyHighlightTime[ keyLetters[i + 10] ] > 0) {
@@ -994,7 +1020,7 @@
 			}
 		}
 
-		for(var i = 0; i <7 ; i++) {
+		for(let i = 0; i <7 ; i++) {
 			ctx.strokeRect((i+1)*keySize, pw + 2*keySize, keySize, keySize);
 
 			if(keyHighlightTime[ keyLetters[i + 19] ] > 0) {
@@ -1063,14 +1089,14 @@
 				pw + 2*keySize + keySize / 2);
 		}
 
-		ctx.strokeRect(0, pw + 3*keySize, 2.5*squareSize, keySize);
+		ctx.strokeRect(0, pw + 3*keySize, 2.5*(2 * keySize / 3), keySize);
 		if(keyHighlightTime["Backspace"] > 0) {
-			fillActiveRect(0, pw + 3*keySize, 2.5*squareSize, keySize, ctx);
+			fillActiveRect(0, pw + 3*keySize, 2.5*(2 * keySize / 3), keySize, ctx);
 			ctx.fillStyle = "rgb(25, 25, 25)";
 			ctx.font = Math.floor(.6 * keySize) + "px Arial, sans-serif";
 			ctx.textBaseline = "middle";
 			ctx.fillText("BKSP",
-				(keySize + squareSize) / 2
+				(keySize + 2 * keySize / 3) / 2
 					- ctx.measureText("BKSP").width/ 2,
 				pw + 3*keySize + keySize / 2);
 		} else {
@@ -1078,19 +1104,19 @@
 			ctx.font = Math.floor(.35 * keySize) + "px Arial, sans-serif";
 			ctx.textBaseline = "middle";
 			ctx.fillText("BKSP",
-				(keySize + squareSize) / 2
+				(keySize + 2 * keySize / 3) / 2
 					- ctx.measureText("BKSP").width/ 2,
 				pw + 3*keySize + keySize / 2);
 		}
 
-		ctx.strokeRect(2.5*squareSize, pw + 3*keySize, 3*squareSize, keySize);
+		ctx.strokeRect(2.5*(2 * keySize / 3), pw + 3*keySize, 3*(2 * keySize / 3), keySize);
 		if(keyHighlightTime["Delete"] > 0) {
-			fillActiveRect(2.5*squareSize, pw + 3*keySize, 3*squareSize, keySize, ctx);
+			fillActiveRect(2.5*(2 * keySize / 3), pw + 3*keySize, 3*(2 * keySize / 3), keySize, ctx);
 			ctx.fillStyle = "rgb(25, 25, 25)";
 			ctx.font = Math.floor(.6 * keySize) + "px Arial, sans-serif";
 			ctx.textBaseline = "middle";
 			ctx.fillText("DEL",
-				(keySize + squareSize) +
+				(keySize + (2 * keySize / 3)) +
 				(keySize + keySize) / 2
 					- ctx.measureText("DEL").width / 2,
 				pw + 3 * keySize + keySize / 2);
@@ -1099,7 +1125,7 @@
 			ctx.font = Math.floor(.35 * keySize) + "px Arial, sans-serif";
 			ctx.textBaseline = "middle";
 			ctx.fillText("DEL",
-				(keySize + squareSize) +
+				(keySize + (2 * keySize / 3)) +
 				(keySize + keySize) / 2
 					- ctx.measureText("DEL").width / 2,
 				pw + 3 * keySize + keySize / 2);
@@ -1191,18 +1217,20 @@
 		}
 
 		// Space
-		ctx.strokeRect(5.5*squareSize, pw + 3*keySize, 5*squareSize, keySize);
+		ctx.strokeRect(5.5*(2 * keySize / 3), pw + 3*keySize, 5*(2 * keySize / 3), keySize);
 		if(keyHighlightTime["Space"] > 0) {
-			fillActiveRect(5.5*squareSize, pw + 3*keySize, 5*squareSize, keySize, ctx);
+			fillActiveRect(5.5*(2 * keySize / 3), pw + 3*keySize, 5*(2 * keySize / 3), keySize, ctx);
 		}
+
+		onrender(ctx);
 	};
 	
 	/**
 	 * @description Determines if all of the cells in the puzzle have been correctly entered.
 	 * @returns {boolean}
 	 */
-	var isComplete = Cruciverb.prototype.isComplete = function(){
-		for(var i = 0; i < answerArray.length; i++)
+	let isComplete = Cruciverb.prototype.isComplete = function(){
+		for(let i = 0; i < answerArray.length; i++)
 		{
 			if(answerArray[i] != enteredArray[i])
 				return false;
@@ -1212,27 +1240,27 @@
 	};
 	
 	// A few getter and setter methods for internal variables.
-	var getHighlightStart = Cruciverb.prototype.getHighlightStart = function(){
+	let getHighlightStart = Cruciverb.prototype.getHighlightStart = function(){
 		return highlightStart;	
 	};
 	
-	var setHighlightStart = Cruciverb.prototype.setHighlightStart = function(n){
+	let setHighlightStart = Cruciverb.prototype.setHighlightStart = function(n){
 		highlightStart = n;
 	};
 	
-	var getHighlightEnd = Cruciverb.prototype.getHighlightEnd = function(){
+	let getHighlightEnd = Cruciverb.prototype.getHighlightEnd = function(){
 		return highlightEnd;
 	};
 	
-	var setHighlightEnd = Cruciverb.prototype.setHighlightEnd = function(n){
+	let setHighlightEnd = Cruciverb.prototype.setHighlightEnd = function(n){
 		highlightEnd = n;
 	};
 
-	var getPlayerSquarePos = Cruciverb.prototype.getPlayerSquarePos = function(){
+	let getPlayerSquarePos = Cruciverb.prototype.getPlayerSquarePos = function(){
 		 return playerSquarePos;
 	};
 	
-	var setPlayerSquarePos = Cruciverb.prototype.setPlayerSquarePos = function(p){
+	let setPlayerSquarePos = Cruciverb.prototype.setPlayerSquarePos = function(p){
 		playerSquarePos = p;
 		renderScreen();
 	};
@@ -1240,15 +1268,15 @@
 	/**
 	* @description Determines the number of total squares in the current highlighted part of the puzzle.
 	*/
-	var getHighlightLength = Cruciverb.prototype.getHighlightLength = function(){
-		return direction === "horizontal" ? (highlightEnd - highlightStart + 1) : (highlightEnd - highlightStart + 1) / 15;
+	let getHighlightLength = Cruciverb.prototype.getHighlightLength = function(){
+		return direction === "horizontal" ? (highlightEnd - highlightStart + 1) : (highlightEnd - highlightStart + 1) / pWidthInSquares;
 	};
 
 	/**
 	 * @description Erases board and resets the web storage values.
 	 */
-	var clearBoard = Cruciverb.prototype.clearBoard = function(){
-		for(var i = 0; i < enteredArray.length; i++)
+	let clearBoard = Cruciverb.prototype.clearBoard = function(){
+		for(let i = 0; i < enteredArray.length; i++)
 		{
 			if(enteredArray[i] != "_")
 			{
@@ -1263,8 +1291,8 @@
 	/**
 	 * @description Fill the board with the correct answers.
 	 */
-	var showAllAnswers = Cruciverb.prototype.showAllAnswers = function(){
-		for(var i = 0; i < answerArray.length; i++)
+	let showAllAnswers = Cruciverb.prototype.showAllAnswers = function(){
+		for(let i = 0; i < answerArray.length; i++)
 		{
 			enteredArray[i] = answerArray[i];
 			renderScreen();
@@ -1274,12 +1302,12 @@
 	/**
 	 * @description Creates DOM elements that make up the ending screen.
 	 */
-	var createResults = function(){
-		var shadowDiv = document.createElement("DIV");
-		var div = document.createElement("DIV");
-		var h2 = document.createElement("H2");
-		var tn = document.createTextNode("Puzzle Completed");
-		var tn2 = document.createTextNode("&times;");
+	let createResults = function(){
+		let shadowDiv = document.createElement("DIV");
+		let div = document.createElement("DIV");
+		let h2 = document.createElement("H2");
+		let tn = document.createTextNode("Puzzle Completed");
+		let tn2 = document.createTextNode("&times;");
 
 		shadowDiv.id = "shadow_div";
 		div.id = "results_div";
@@ -1322,9 +1350,9 @@
 	/**
 	 * @description Shows the ending screen.
 	 */
-	var showResults = Cruciverb.prototype.showResults = function() {
+	let showResults = Cruciverb.prototype.showResults = function() {
 		resultsShown = true;
-		var results = document.getElementById("results_div");
+		let results = document.getElementById("results_div");
 
 		if(results.innerHTML.indexOf("Check") === -1) {
 			results.innerHTML += "<br/><br/>&nbsp;Check out more of our puzzles online!<br/><br/><br/>&nbsp;<strong><a href='" + linkHref + "' style='color: white; text-decoration: none;'>" + linkName +
