@@ -40,7 +40,7 @@ html, body {
 var crux = null,
 	fs = false;
 
-onload = function() {
+document.addEventListener("DOMContentLoaded", function() {
 
 	// answers should be 225 characters long to represent the 15 x 15 puzzle. The best way to visualize it is by breaking the string up into 15 "rows."
 	var answers = "BOAST_RADII_ADD" +
@@ -163,7 +163,7 @@ onload = function() {
 			fs = false;
 		}
 	}, false);
-};
+}, false);
 </script>
 </body>
 </html>
