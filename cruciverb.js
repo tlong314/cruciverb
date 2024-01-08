@@ -6,7 +6,7 @@
  * for web pages.
  * 
  * @author Tim Scott Long
- * @copyright Tim Scott Long 2017-2021
+ * @copyright Tim Scott Long 2017-2023
  * @license Available for use under the MIT License
  */
 ;let Cruciverb = (function() {
@@ -21,9 +21,9 @@
 		linkHref = "",
 		linkName = "",
 		playerSquarePos = 0,
-		cWidth = pWidthInSquares * 30, // Default puzzle width (in pixels)
-		cssWidth = 450,
 		squareSize = 30,
+		cWidth = pWidthInSquares * squareSize, // Default puzzle width (in pixels)
+		cssWidth = 450,
 		direction = "horizontal", // Otherwise "vertical"
 		hostElm = document.body, // Host in entire page body by default
 		resultsShown = false,
@@ -184,23 +184,19 @@
 		if(document.documentElement.clientWidth <= 400) {
 			document.body.style.margin = "0";
 			canvas.style.border = "0";
-			canvas.style.width = cssWidth + "px";
-			canvas.style.height = cssWidth + "px";
-			canvas.setAttribute("width", cssWidth+"px");
-			canvas.setAttribute("height", cssWidth+"px");			
-		} else {
-			canvas.style.width = cssWidth + "px";
-			canvas.style.height = cssWidth + "px";
-			canvas.setAttribute("width", cssWidth+"px");
-			canvas.setAttribute("height", cssWidth+"px");
 		}
+
+		canvas.style.width = cssWidth + "px";
+		canvas.style.height = cssWidth + "px";
+		canvas.setAttribute("width", cssWidth);
+		canvas.setAttribute("height", cssWidth);
 		
-		// Add the custom onscreen keyboard.
+		// Add canvas space for the custom onscreen keyboard.
 		if(touchDetected) {
 			canvas.style.width = cssWidth + "px";
-			canvas.style.height = (cssWidth + 4 * getKeySize()) + "px";
-			canvas.setAttribute("width", cssWidth+"px");
-			canvas.setAttribute("height", (cssWidth + 4 * getKeySize())+"px");
+			canvas.style.height = (getPuzzleHeight() + 4 * getKeySize()) + "px";
+			canvas.setAttribute("width", cssWidth);
+			canvas.setAttribute("height", (getPuzzleHeight() + 4 * getKeySize()));
 		}
 
 		getSavedAnswers();
@@ -248,8 +244,8 @@
 		// canvas.style.border = "0";
 		canvas.style.width = cssWidth + "px";
 		canvas.style.height = (cssWidth + 4 * getKeySize()) + "px";
-		canvas.setAttribute("width", cssWidth+"px");
-		canvas.setAttribute("height", (cssWidth + 4 * getKeySize())+"px");
+		canvas.setAttribute("width", cssWidth);
+		canvas.setAttribute("height", (cssWidth + 4 * getKeySize()));
 		touchDetected = true;
 		window.removeEventListener("touchstart", detectTouch, false);
 		initializeCruciverb();
@@ -874,10 +870,10 @@
 	 * @returns {number} - The optimal width for the square puzzle.
 	 */
 	let getPuzzleWidth = Cruciverb.prototype.getPuzzleWidth = function(){
-			let pWidth = Math.min(document.documentElement.clientWidth, cssWidth);
+			let pWidth = Math.floor(Math.min(document.documentElement.clientWidth, cssWidth));
 
 			// We want our puzzle dimensions to be divisble by the number of squares in a row (pWidthInSquares).
-			while(pWidth%pWidthInSquares !== 0) {
+			while(pWidth % pWidthInSquares !== 0) {
 				pWidth--;
 			}
 
@@ -886,10 +882,11 @@
 
 	/**
 	 * @description Gets the optimal height in pixels for the square puzzle based on current screen size.
+	 * Note: currently assumes the puzzle is square.
 	 * @returns {number}
 	 */
-	Cruciverb.prototype.getPuzzleHeight = function(){
-			return getPuzzleWidth();
+	let getPuzzleHeight = Cruciverb.prototype.getPuzzleHeight = function(){
+		return getPuzzleWidth();
 	};
 
 	/**
@@ -897,7 +894,7 @@
 	 * @returns {number}
 	 */
 	let getSquareWidth = Cruciverb.prototype.getSquareWidth = function(){
-		return getPuzzleWidth() / pWidthInSquares;
+		return Math.floor(Math.min(getPuzzleWidth(), document.documentElement.clientWidth) / pWidthInSquares);
 	};
 
 	/**
@@ -905,14 +902,19 @@
 	 * @returns {number}
 	 */
 	let getKeySize = function() {
-		return Math.min(45, 3*squareSize/2);
+		return Math.min(
+				Math.min(45,
+					Math.floor(3*squareSize/2)
+				),
+				Math.floor(getPuzzleWidth() / 10)
+			);
 	};
 
 	/**
 	 * @description Draws the square puzzle in its current state.
 	 */
 	let renderScreen = function() {
-		ctx.clearRect(0, 0, cWidth, cWidth);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = "#FFFFAA";
 		ctx.fillStyle = "rgb(255, 255, 230)";
 
